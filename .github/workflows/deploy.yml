@@ -23,7 +23,7 @@ jobs:
 
       - run: yarn install
       - run: yarn build
-      - run: ls
+      # - run: ls
 
       - name: (Preview) Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
@@ -31,7 +31,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: a29d00c568541656b8fda7f7c4573010
           projectName: 4t1m
-          directory: public
+          directory: dist
           # Optional: Enable this if you want to have GitHub Deployments triggered
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: preview
