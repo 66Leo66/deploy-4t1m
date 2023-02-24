@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  prepare:
+  build-deploy:
     name: Build
     runs-on: ubuntu-latest
     steps:
@@ -17,5 +17,16 @@ jobs:
         with:
           node-version: 18
           cache: 'yarn'
+
       - run: yarn install
       - run: yarn build
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: a29d00c568541656b8fda7f7c4573010
+          projectName: 4T1M
+          directory: public
+          # Optional: Enable this if you want to have GitHub Deployments triggered
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
