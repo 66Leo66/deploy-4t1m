@@ -3,17 +3,23 @@ on:
     branches:
     - main
   workflow_dispatch:
+    inputs:
+      prod:
+        description: 'Deploy to Production'
+        required: true
+        type: boolean
+        default: false
+
 
 jobs:
-  build-deploy:
+  build:
     name: Build
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      deployments: write
     concurrency:
-      group: preview
-      cancel-in-progress: true
+      group: build
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v3
         with:
@@ -35,13 +41,58 @@ jobs:
           name: dist
           path: dist # or path/to/artifact
 
-      - name: (Preview) Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: a29d00c568541656b8fda7f7c4573010
-          projectName: 4t1m
-          directory: dist
-          # Optional: Enable this if you want to have GitHub Deployments triggered
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: preview
+    deploy-preview:
+      name: Preview Deploy
+      runs-on: ubuntu-latest
+      needs: build
+      if: !inputs.prod
+      permissions:
+        contents: read
+        deployments: write
+      concurrency:
+        group: preview
+        cancel-in-progress: false
+      steps:
+        - uses: actions/download-artifact@v3
+          with:
+            name: dist
+            path: dist
+
+        - name: (Preview) Publish to Cloudflare Pages
+          uses: cloudflare/pages-action@v1
+          with:
+            apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+            accountId: a29d00c568541656b8fda7f7c4573010
+            projectName: 4t1m
+            directory: dist
+            # Optional: Enable this if you want to have GitHub Deployments triggered
+            gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+            branch: preview
+
+    deploy-production:
+      name: Production Deploy
+      runs-on: ubuntu-latest
+      needs: build
+      if: inputs.prod
+      permissions:
+        contents: read
+        deployments: write
+      concurrency:
+        group: preview
+        cancel-in-progress: false
+      steps:
+        - uses: actions/download-artifact@v3
+          with:
+            name: dist
+            path: dist
+
+        - name: (Production) Publish to Cloudflare Pages
+          uses: cloudflare/pages-action@v1
+          with:
+            apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+            accountId: a29d00c568541656b8fda7f7c4573010
+            projectName: 4t1m
+            directory: dist
+            # Optional: Enable this if you want to have GitHub Deployments triggered
+            gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+            branch: main
