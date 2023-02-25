@@ -33,7 +33,7 @@ jobs:
       - run: yarn install
       - run: yarn build
         env:
-          PUBLIC_SITE_URL: 'https://preview.4t1m.win/'
+          PUBLIC_SITE_URL: ${{ inputs.prod && 'https://4t1m.win/' || 'https://preview.4t1m.win/'}}
       # - run: ls
       
       - uses: actions/upload-artifact@v3
