@@ -21,6 +21,9 @@ jobs:
       group: build
       cancel-in-progress: false
     steps:
+      - uses: szenius/set-timezone@v1.0
+        with:
+          timezoneLinux: "Asia/Shanghai"
       - uses: actions/checkout@v3
         with:
           repository: 66Leo66/4T1M-Paper
@@ -53,6 +56,9 @@ jobs:
       group: preview
       cancel-in-progress: false
     steps:
+      - uses: szenius/set-timezone@v1.0
+        with:
+          timezoneLinux: "Asia/Shanghai"
       - uses: actions/download-artifact@v3
         with:
           name: dist
@@ -81,6 +87,9 @@ jobs:
       group: production
       cancel-in-progress: true
     steps:
+      - uses: szenius/set-timezone@v1.0
+        with:
+          timezoneLinux: "Asia/Shanghai"
       - uses: actions/download-artifact@v3
         with:
           name: dist
